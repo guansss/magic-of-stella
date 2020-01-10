@@ -47,7 +47,7 @@ const config = {
     ],
     resolve: {
         alias: {
-            '@': '/src',
+            '@': path.resolve(__dirname, 'src'),
         },
         extensions: ['.ts', '.js'],
     },
