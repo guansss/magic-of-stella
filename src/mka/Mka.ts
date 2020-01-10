@@ -1,4 +1,5 @@
 import autobind from 'autobind-decorator';
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import Player, { InternalPlayer } from './Player';
 import Ticker from './Ticker';
 
@@ -11,20 +12,29 @@ export default class Mka {
         return this._paused;
     }
 
-    get gl() {
-        // @ts-ignore
-        return this.pixiApp.renderer.gl;
-    }
-
     private readonly players: { [name: string]: InternalPlayer } = {};
+
+    renderer = new WebGLRenderer({ canvas: this.canvas });
+    scene = new Scene();
+    camera = new PerspectiveCamera(75, 1, 0.1, 1000);
 
     /**
      * ID returned by `requestAnimationFrame()`
      */
     private rafId = 0;
 
-    constructor() {
+    constructor(readonly canvas: HTMLCanvasElement) {
+        window.addEventListener('resize', this.resize, { passive: true });
+        this.resize();
+
         this.rafId = requestAnimationFrame(this.tick);
+    }
+
+    @autobind
+    resize() {
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix()
     }
 
     addPlayer(name: string, player: Player, enabled = true) {
@@ -73,6 +83,8 @@ export default class Mka {
                         player.update();
                     }
                 });
+
+                this.renderer.render(this.scene, this.camera);
             }
             this.rafId = requestAnimationFrame(this.tick);
         }
