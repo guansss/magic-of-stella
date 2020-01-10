@@ -14,7 +14,7 @@ export default class Mka {
 
     private readonly players: { [name: string]: InternalPlayer } = {};
 
-    renderer = new WebGLRenderer({ canvas: this.canvas });
+    renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
     scene = new Scene();
     camera = new PerspectiveCamera(75, 1, 0.1, 1000);
 
@@ -34,7 +34,7 @@ export default class Mka {
     resize() {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix()
+        this.camera.updateProjectionMatrix();
     }
 
     addPlayer(name: string, player: Player, enabled = true) {
