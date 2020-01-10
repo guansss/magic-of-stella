@@ -1,19 +1,25 @@
+import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
 import Player from '@/mka/Player';
-import { rand, randomColor } from '@/utils';
-import { Mesh, MeshBasicMaterial, Shape, ShapeBufferGeometry } from 'three';
+import { rand } from '@/utils';
+import frag from 'raw-loader!./shaders/tile.frag';
+import vert from 'raw-loader!./shaders/tile.vert';
+import { BufferGeometry, Float32BufferAttribute, Mesh, ShaderMaterial, Uint8BufferAttribute } from 'three';
 
-const AMOUNT = 100;
-const MAX_SIZE = 8;
-const MIN_SIZE = 4;
+const AMOUNT = 4000;
+const SIZE = 100;
 const MAX_ROTATION = 0.5;
+
+const COLORS = Array(10).fill(0).map(() => {
+    const rgb = [rand(0, 255), rand(0, 255), rand(0, 255)];
+    return [].concat(...Array(6).fill(rgb));
+});
 
 export default class TilesPlayer extends Player {
 
-    tiles: Mesh[] = [];
+    tiles?: Mesh;
 
     constructor() {
         super();
-
     }
 
     attach() {
@@ -21,35 +27,59 @@ export default class TilesPlayer extends Player {
     }
 
     setup() {
-        for (let i = 0; i < AMOUNT; i++) {
-            const tile = this.createTile();
-
-            this.tiles.push(tile);
-        }
+        this.createTiles();
 
         if (this.mka) {
-            this.mka.scene.add(...this.tiles);
+            this.mka.scene.add(this.tiles!);
         }
     }
 
-    createTile(): Mesh {
-        const size = rand(MIN_SIZE, MAX_SIZE);
+    createTiles() {
+        const vertices: number[] = [];
+        const colors: number[] = [];
 
-        const shape = new Shape()
-            .moveTo(0, 0)
-            .lineTo(0, size)
-            .lineTo(size, size)
-            .lineTo(size, 0)
-            .lineTo(0, 0);
+        let x: number;
+        let y: number;
+        let z: number;
+        let color: number[];
 
-        const geometry = new ShapeBufferGeometry(shape);
-        const material = new MeshBasicMaterial({ color: randomColor() });
-        const mesh = new Mesh(geometry, material);
+        for (let i = 0; i < AMOUNT; i++) {
+            x = rand(-VIEW_SIZE, VIEW_SIZE);
+            y = rand(-VIEW_SIZE, VIEW_SIZE);
+            z = rand(-VIEW_DISTANCE, 0);
+            color = COLORS[~~rand(0, COLORS.length)];
 
-        mesh.position.set(rand(-50, 50), rand(-50, 50), rand(-100, 0));
-        mesh.rotation.set(rand(-MAX_ROTATION, MAX_ROTATION), rand(-MAX_ROTATION, MAX_ROTATION), 0);
+            vertices.push(
+                x, y, z,
+                x + SIZE, y, z,
+                x, y + SIZE, z,
 
-        return mesh;
+                x, y + SIZE, z,
+                x + SIZE, y, z,
+                x + SIZE, y + SIZE, z,
+            );
+
+            colors.push(...color);
+        }
+
+        const geometry = new BufferGeometry();
+
+        const positionAttr = new Float32BufferAttribute(vertices, 3);
+        const colorAttr = new Uint8BufferAttribute(colors, 3);
+        colorAttr.normalized = true;
+
+        geometry.setAttribute('position', positionAttr);
+        geometry.setAttribute('color', colorAttr);
+
+        const material = new ShaderMaterial({
+            uniforms: {
+                alpha: { value: 0.8 },
+            },
+            vertexShader: vert,
+            fragmentShader: frag,
+        });
+
+        this.tiles = new Mesh(geometry, material);
     }
 
     update(): boolean {
