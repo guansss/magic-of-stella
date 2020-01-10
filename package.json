@@ -9,6 +9,7 @@
     "build": "webpack"
   },
   "devDependencies": {
+    "autobind-decorator": "^2.4.0",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.1",
     "fork-ts-checker-webpack-plugin": "^3.1.1",
