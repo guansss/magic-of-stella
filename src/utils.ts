@@ -4,5 +4,5 @@ export function rand(min: number, max: number) {
 
 export function randomColor() {
     // https://stackoverflow.com/a/7638362
-    return '#' + Math.random().toString(16).substr(-6);
+    return +('0x' + Math.random().toString(16).substr(-6));
 }
