@@ -1,3 +1,4 @@
+import { VIEW_DISTANCE } from '@/constants';
 import autobind from 'autobind-decorator';
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import Player, { InternalPlayer } from './Player';
@@ -16,7 +17,7 @@ export default class Mka {
 
     renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
     scene = new Scene();
-    camera = new PerspectiveCamera(75, 1, 0.1, 1000);
+    camera = new PerspectiveCamera(75, 1, 0.1, VIEW_DISTANCE);
 
     /**
      * ID returned by `requestAnimationFrame()`

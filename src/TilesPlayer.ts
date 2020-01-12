@@ -98,6 +98,21 @@ export default class TilesPlayer extends Player {
     }
 
     update(): boolean {
+        if (this.tiles) {
+            const positions = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
+            const positionsArray = positions.array as number[];
+            const cameraZ = this.mka!.camera.position.z;
+
+            for (let i = positionsArray.length - 1; i >= 0; i -= 3) {
+                if (positionsArray[i] > cameraZ) {
+                    positionsArray[i] -= VIEW_DISTANCE;
+                    positions.needsUpdate = true;
+                }
+            }
+
+            this.tiles.geometry.computeBoundingSphere();
+        }
+
         return true;
     }
 }
