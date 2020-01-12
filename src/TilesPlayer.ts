@@ -7,15 +7,15 @@ import {
     BufferAttribute,
     BufferGeometry,
     Float32BufferAttribute,
-    Matrix4,
     Mesh,
     ShaderMaterial,
     Uint8BufferAttribute,
+    Vector3,
 } from 'three';
 
 const AMOUNT = 5000;
-const SIZE = 2;
-const MAX_ROTATION = 0.5;
+const HALF_SIZE = 1.2;
+const MAX_ANGLE = 1.5;
 
 const COLORS = Array(10).fill(0).map(() => {
     const rgb = [rand(0, 255), rand(0, 255), rand(0, 255)];
@@ -35,7 +35,9 @@ export default class TilesPlayer extends Player {
     }
 
     setup() {
+        console.time('createTiles');
         this.createTiles();
+        console.timeEnd('createTiles');
 
         if (this.mka) {
             this.mka.scene.add(this.tiles!);
@@ -43,38 +45,46 @@ export default class TilesPlayer extends Player {
     }
 
     createTiles() {
+        const viewRadiusSquare = VIEW_SIZE ** 2;
+        const rotationAxis = new Vector3(1, 0, 0);
+
         const indices: number[] = [];
         const vertices: number[] = [];
-        const transforms: number[] = [];
         const colors: number[] = [];
 
         let x: number;
         let y: number;
         let z: number;
-        let transform: Matrix4;
+        let angle: number;
+        let vertex = new Vector3();
         let offset: number;
+
+        function addVertex(x: number, y: number, z: number, offsetX: number, offsetY: number, offsetZ: number, angle: number) {
+            vertex.set(offsetX, offsetY, offsetZ);
+            vertex.applyAxisAngle(rotationAxis, angle);
+            vertices.push(vertex.x + x, vertex.y + y, vertex.z + z);
+        }
 
         for (let i = 0; i < AMOUNT; i++) {
             offset = i * 4;
 
-            x = rand(-VIEW_SIZE, VIEW_SIZE);
-            y = rand(-VIEW_SIZE, VIEW_SIZE);
-            z = rand(-VIEW_DISTANCE, 0);
+            do {
+                x = rand(-VIEW_SIZE, VIEW_SIZE);
+                y = rand(-VIEW_SIZE, VIEW_SIZE);
+            } while (x ** 2 + y ** 2 > viewRadiusSquare);
 
-            vertices.push(
-                x, y, z,
-                x + SIZE, y, z,
-                x, y + SIZE, z,
-                x + SIZE, y + SIZE, z,
-            );
+            z = rand(-VIEW_DISTANCE, 0);
+            angle = rand(0, MAX_ANGLE);
+
+            addVertex(x, y, z, -HALF_SIZE, -HALF_SIZE, 0, angle);
+            addVertex(x, y, z, HALF_SIZE, -HALF_SIZE, 0, angle);
+            addVertex(x, y, z, -HALF_SIZE, HALF_SIZE, 0, angle);
+            addVertex(x, y, z, HALF_SIZE, HALF_SIZE, 0, angle);
 
             indices.push(
                 offset, offset + 1, offset + 2,
                 offset + 2, offset + 1, offset + 3,
             );
-
-            transform = new Matrix4();
-            transforms.push(...transform.elements);
 
             colors.push(...COLORS[~~rand(0, COLORS.length)]);
         }
@@ -83,7 +93,6 @@ export default class TilesPlayer extends Player {
 
         geometry.setIndex(indices);
         geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
-        geometry.setAttribute('transform', new Float32BufferAttribute(transforms, 16));
         geometry.setAttribute('color', new Uint8BufferAttribute(colors, 3, true));
 
         const material = new ShaderMaterial({
@@ -103,9 +112,12 @@ export default class TilesPlayer extends Player {
             const positionsArray = positions.array as number[];
             const cameraZ = this.mka!.camera.position.z;
 
-            for (let i = positionsArray.length - 1; i >= 0; i -= 3) {
+            for (let i = positionsArray.length - 1; i >= 0; i -= 3 * 4) {
                 if (positionsArray[i] > cameraZ) {
                     positionsArray[i] -= VIEW_DISTANCE;
+                    positionsArray[i - 3] -= VIEW_DISTANCE;
+                    positionsArray[i - 6] -= VIEW_DISTANCE;
+                    positionsArray[i - 9] -= VIEW_DISTANCE;
                     positions.needsUpdate = true;
                 }
             }

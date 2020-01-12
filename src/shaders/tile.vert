@@ -1,6 +1,5 @@
 precision highp float;
 
-attribute mat4 transform;
 attribute vec3 color;
 
 uniform float size;
