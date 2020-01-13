@@ -1,8 +1,8 @@
 import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
 import Player from '@/mka/Player';
 import { rand } from '@/utils';
-import frag from 'raw-loader!./shaders/tile.frag';
-import vert from 'raw-loader!./shaders/tile.vert';
+import frag from 'raw-loader!@/shaders/tile.frag';
+import vert from 'raw-loader!@/shaders/tile.vert';
 import {
     BufferAttribute,
     BufferGeometry,
