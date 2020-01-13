@@ -14,7 +14,7 @@ import {
 } from 'three';
 
 const AMOUNT = 5000;
-const HALF_SIZE = 1.2;
+const SIZE = 2.4;
 const MAX_ANGLE = 1.5;
 
 const COLORS = Array(10).fill(0).map(() => {
@@ -26,9 +26,7 @@ export default class TilesPlayer extends Player {
 
     tiles?: Mesh;
 
-    constructor() {
-        super();
-    }
+    size = SIZE;
 
     attach() {
         this.setup();
@@ -47,26 +45,32 @@ export default class TilesPlayer extends Player {
     createTiles() {
         const viewRadiusSquare = VIEW_SIZE ** 2;
         const rotationAxis = new Vector3(1, 0, 0);
+        const tempVertex = new Vector3();
 
         const indices: number[] = [];
         const vertices: number[] = [];
+        const directions: number[] = [];
         const colors: number[] = [];
 
         let x: number;
         let y: number;
         let z: number;
         let angle: number;
-        let vertex = new Vector3();
         let offset: number;
 
-        function addVertex(x: number, y: number, z: number, offsetX: number, offsetY: number, offsetZ: number, angle: number) {
-            vertex.set(offsetX, offsetY, offsetZ);
-            vertex.applyAxisAngle(rotationAxis, angle);
-            vertices.push(vertex.x + x, vertex.y + y, vertex.z + z);
+        function addDirection(offsetX: number, offsetY: number, offsetZ: number, angle: number) {
+            tempVertex.set(offsetX, offsetY, offsetZ);
+            tempVertex.applyAxisAngle(rotationAxis, angle);
+            directions.push(tempVertex.x, tempVertex.y, tempVertex.z);
         }
 
         for (let i = 0; i < AMOUNT; i++) {
             offset = i * 4;
+
+            indices.push(
+                offset, offset + 1, offset + 2,
+                offset + 2, offset + 1, offset + 3,
+            );
 
             do {
                 x = rand(-VIEW_SIZE, VIEW_SIZE);
@@ -74,17 +78,20 @@ export default class TilesPlayer extends Player {
             } while (x ** 2 + y ** 2 > viewRadiusSquare);
 
             z = rand(-VIEW_DISTANCE, 0);
+
+            vertices.push(
+                x, y, z,
+                x, y, z,
+                x, y, z,
+                x, y, z,
+            );
+
             angle = rand(0, MAX_ANGLE);
 
-            addVertex(x, y, z, -HALF_SIZE, -HALF_SIZE, 0, angle);
-            addVertex(x, y, z, HALF_SIZE, -HALF_SIZE, 0, angle);
-            addVertex(x, y, z, -HALF_SIZE, HALF_SIZE, 0, angle);
-            addVertex(x, y, z, HALF_SIZE, HALF_SIZE, 0, angle);
-
-            indices.push(
-                offset, offset + 1, offset + 2,
-                offset + 2, offset + 1, offset + 3,
-            );
+            addDirection(-0.5, -0.5, 0, angle);
+            addDirection(0.5, -0.5, 0, angle);
+            addDirection(-0.5, 0.5, 0, angle);
+            addDirection(0.5, 0.5, 0, angle);
 
             colors.push(...COLORS[~~rand(0, COLORS.length)]);
         }
@@ -93,11 +100,12 @@ export default class TilesPlayer extends Player {
 
         geometry.setIndex(indices);
         geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('direction', new Float32BufferAttribute(directions, 3));
         geometry.setAttribute('color', new Uint8BufferAttribute(colors, 3, true));
 
         const material = new ShaderMaterial({
             uniforms: {
-                size: { value: 1 },
+                size: { value: this.size },
             },
             vertexShader: vert,
             fragmentShader: frag,
@@ -123,6 +131,8 @@ export default class TilesPlayer extends Player {
             }
 
             this.tiles.geometry.computeBoundingSphere();
+
+            (this.tiles.material as ShaderMaterial).uniforms.size.value = this.size;
         }
 
         return true;
