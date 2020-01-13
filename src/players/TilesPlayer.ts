@@ -7,6 +7,7 @@ import vert from 'raw-loader!@/shaders/tile.vert';
 import {
     BufferAttribute,
     BufferGeometry,
+    DoubleSide,
     Float32BufferAttribute,
     Mesh,
     ShaderMaterial,
@@ -19,10 +20,24 @@ const SIZE = 2.4;
 const PULSE_SCALE = 0.22;
 const SIZE_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
+const MIN_BRIGHTNESS = 0.5 * 255;
 
 const COLORS = Array(10).fill(0).map(() => {
-    const rgb = [rand(0, 255), rand(0, 255), rand(0, 255)];
-    return [].concat(...Array(4).fill(rgb));
+    let r = 0, g = 0, b = 0;
+
+    do {
+        r = rand(0, 255);
+        g = rand(0, 255);
+        b = rand(0, 255);
+    } while ((Math.max(r, g, b) + Math.min(r, g, b)) / 2 < MIN_BRIGHTNESS);
+
+    return [
+        // repeat 4 times for vertices
+        r, g, b,
+        r, g, b,
+        r, g, b,
+        r, g, b,
+    ];
 });
 
 export default class TilesPlayer extends Player {
@@ -118,6 +133,8 @@ export default class TilesPlayer extends Player {
             },
             vertexShader: vert,
             fragmentShader: frag,
+            side: DoubleSide,
+            transparent: true,
         });
 
         this.tiles = new Mesh(geometry, material);
