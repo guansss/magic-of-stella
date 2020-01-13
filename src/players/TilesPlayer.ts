@@ -1,6 +1,7 @@
 import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
 import Player from '@/mka/Player';
 import { rand } from '@/utils';
+import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
 import frag from 'raw-loader!@/shaders/tile.frag';
 import vert from 'raw-loader!@/shaders/tile.vert';
 import {
@@ -15,6 +16,8 @@ import {
 
 const AMOUNT = 5000;
 const SIZE = 2.4;
+const PULSE_SCALE = 0.22;
+const SIZE_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
 
 const COLORS = Array(10).fill(0).map(() => {
@@ -27,6 +30,12 @@ export default class TilesPlayer extends Player {
     tiles?: Mesh;
 
     size = SIZE;
+
+    constructor() {
+        super();
+
+        addAudioListener(this.audioUpdate, this);
+    }
 
     attach() {
         this.setup();
@@ -114,6 +123,10 @@ export default class TilesPlayer extends Player {
         this.tiles = new Mesh(geometry, material);
     }
 
+    audioUpdate(audioSamples: number[]) {
+        this.size += ((volumeOf(audioSamples) * PULSE_SCALE + 1) * SIZE - this.size) / SIZE_FILTER_STRENGTH;
+    }
+
     update(): boolean {
         if (this.tiles) {
             const positions = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
@@ -136,5 +149,9 @@ export default class TilesPlayer extends Player {
         }
 
         return true;
+    }
+
+    destroy() {
+        removeAudioListener(this.audioUpdate);
     }
 }

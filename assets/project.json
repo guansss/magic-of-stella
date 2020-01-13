@@ -3,6 +3,7 @@
   "description": "",
   "file": "index.html",
   "general": {
+    "supportsaudioprocessing" : true,
     "localization": {},
     "properties": {
       "schemecolor": {
