@@ -51,7 +51,7 @@ const config = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
+                test: /\.[jt]s$/,
                 use: [
                     {
                         loader: 'ts-loader',
