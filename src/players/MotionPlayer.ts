@@ -8,10 +8,12 @@ const ROTATION_DURATION = 5000;
 const ROTATION_MAX_INTERVAL = 3000;
 const ROTATION_MIN_INTERVAL = 1000;
 const ROTATION_MAX_ANGLE = Math.PI / 6;
+const MAX_SPEED = 0.5;
 
 const enum State {Idle, Forward, Backward}
 
 export default class CameraPlayer extends Player {
+    speed = 0.01;
 
     targetAngleX = 0;
     targetAngleY = 0;
@@ -19,6 +21,18 @@ export default class CameraPlayer extends Player {
     state = State.Idle;
     nextTime = 0;
     startTime = 0;
+
+    attach() {
+        this.mka!.on('we:cameraSpeed', this.speedUpdate, this);
+    }
+
+    detach() {
+        this.mka!.off('we:cameraSpeed', this.speedUpdate);
+    }
+
+    speedUpdate(speed: number) {
+        this.speed = MAX_SPEED * clamp(speed / 100, 0, 1);
+    }
 
     updateAngle(camera: Camera) {
         if (this.state === State.Idle) {
@@ -56,7 +70,7 @@ export default class CameraPlayer extends Player {
 
     update(): boolean {
         this.mka!.camera.getWorldDirection(tempDirection);
-        tempDirection.multiplyScalar(0.01 * Ticker.delta);
+        tempDirection.multiplyScalar(this.speed * Ticker.delta);
         this.mka!.camera.position.add(tempDirection);
 
         this.updateAngle(this.mka!.camera);

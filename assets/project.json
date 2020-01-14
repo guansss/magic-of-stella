@@ -15,6 +15,15 @@
       "info": {
         "order": 1,
         "text": "ui_info"
+      },
+      "cameraSpeed": {
+        "order": 2,
+        "text": "ui_camera_speed",
+        "type": "slider",
+        "value": 1,
+        "min": 0,
+        "max": 100,
+        "editable": true
       }
     }
   },
