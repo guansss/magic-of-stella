@@ -1,6 +1,6 @@
 import Player from '@/mka/Player';
 import Ticker from '@/mka/Ticker';
-import { clamp, rand } from '@/utils';
+import { clamp, rand } from '@/utils/misc';
 import { Camera, Vector3 } from 'three';
 
 const tempDirection = new Vector3();

@@ -7,7 +7,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const config = {
     entry: './src/index.ts',
     devServer: {
-        contentBase: './dist',
+        contentBase: './wallpaper',
         hot: true,
 
         // see https://webpack.js.org/configuration/dev-server/#devserverbefore

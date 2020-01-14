@@ -1,4 +1,5 @@
 import { VIEW_DISTANCE } from '@/constants';
+import EventEmitter from '@/utils/EventEmitter';
 import autobind from 'autobind-decorator';
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import Player, { InternalPlayer } from './Player';
@@ -6,7 +7,7 @@ import Ticker from './Ticker';
 
 const TAG = '[Mka]';
 
-export default class Mka {
+export default class Mka extends EventEmitter {
     private _paused = false;
 
     get paused() {
@@ -25,6 +26,8 @@ export default class Mka {
     private rafId = 0;
 
     constructor(readonly canvas: HTMLCanvasElement) {
+        super();
+
         window.addEventListener('resize', this.resize, { passive: true });
         this.resize();
 

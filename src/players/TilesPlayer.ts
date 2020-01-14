@@ -1,6 +1,6 @@
 import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
 import Player from '@/mka/Player';
-import { rand } from '@/utils';
+import { rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
 import frag from 'raw-loader!@/shaders/tile.frag';
 import vert from 'raw-loader!@/shaders/tile.vert';

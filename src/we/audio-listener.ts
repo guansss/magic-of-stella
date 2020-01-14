@@ -1,4 +1,4 @@
-import { clamp } from '@/utils';
+import { clamp } from '@/utils/misc';
 
 function audioListener(audioSamples: number[]) {
     listeners.forEach(l => l.listener.call(l.ctx, audioSamples));
