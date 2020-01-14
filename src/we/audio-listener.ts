@@ -18,7 +18,9 @@ const UPPER_VOLUME = 1.3;
 let maxVolume = LOWER_VOLUME;
 
 export function add(listener: AudioListener, context?: any) {
-    listeners.push({ listener, ctx: context });
+    if (!listeners.find(l => l.listener === listener)) {
+        listeners.push({ listener, ctx: context });
+    }
 }
 
 export function remove(listener: AudioListener) {

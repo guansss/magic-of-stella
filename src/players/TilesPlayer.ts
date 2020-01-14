@@ -51,20 +51,16 @@ export default class TilesPlayer extends Player {
     size = SIZE;
     number = 0; // don't create until the number is set
 
-    constructor() {
-        super();
-
-        addAudioListener(this.audioUpdate, this);
-    }
-
     attach() {
         this.setup();
 
-        this.mka!.on('we:tilesNumber', this.setNumber, this);
+        this.mka!.on('we:tilesNumber', this.setNumber, this)
+            .on('we:audio', this.setAudioResponsive, this);
     }
 
     detach() {
-        this.mka!.off('we:tilesNumber', this.setNumber);
+        this.mka!.off('we:tilesNumber', this.setNumber)
+            .off('we:audio', this.setAudioResponsive);
     }
 
     setNumber = debounce((number: number) => {
@@ -77,6 +73,14 @@ export default class TilesPlayer extends Player {
             this.setup();
         }
     }, 500);
+
+    setAudioResponsive(enabled: boolean) {
+        if (enabled) {
+            addAudioListener(this.audioUpdate, this);
+        } else {
+            removeAudioListener(this.audioUpdate);
+        }
+    }
 
     setup() {
         if (this.number <= 0 || this.tiles) {
@@ -210,6 +214,6 @@ export default class TilesPlayer extends Player {
 
     destroy() {
         this.destroyTiles();
-        removeAudioListener(this.audioUpdate);
+        this.setAudioResponsive(false);
     }
 }

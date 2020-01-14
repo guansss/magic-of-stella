@@ -39,6 +39,12 @@
         "min": 0,
         "max": 20000,
         "editable": true
+      },
+      "audio": {
+        "order": 5,
+        "text": "ui_audio",
+        "type": "bool",
+        "value": true
       }
     }
   },
