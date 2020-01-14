@@ -20,16 +20,18 @@ const SIZE = 2.4;
 const PULSE_SCALE = 0.22;
 const SIZE_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
-const MIN_BRIGHTNESS = 0.5 * 255;
+const MIN_BRIGHTNESS = 0.4 * 255;
+const MAX_BRIGHTNESS = 0.9 * 255;
 
 const COLORS = Array(10).fill(0).map(() => {
-    let r = 0, g = 0, b = 0;
+    let r = 0, g = 0, b = 0, brightness = 0;
 
     do {
         r = rand(0, 255);
         g = rand(0, 255);
         b = rand(0, 255);
-    } while ((Math.max(r, g, b) + Math.min(r, g, b)) / 2 < MIN_BRIGHTNESS);
+        brightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+    } while (brightness < MIN_BRIGHTNESS || brightness > MAX_BRIGHTNESS);
 
     return [
         // repeat 4 times for vertices
