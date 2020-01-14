@@ -20,7 +20,7 @@
         "order": 2,
         "text": "ui_camera_speed",
         "type": "slider",
-        "value": 1,
+        "value": 10,
         "min": 0,
         "max": 100,
         "editable": true

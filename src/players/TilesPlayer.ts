@@ -1,4 +1,4 @@
-import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
+import { VIEW_DISTANCE, VIEW_RADIUS } from '@/constants';
 import Player from '@/mka/Player';
 import { clamp, rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
@@ -97,7 +97,7 @@ export default class TilesPlayer extends Player {
     }
 
     createTiles() {
-        const viewRadiusSquare = VIEW_SIZE ** 2;
+        const viewRadiusSquare = VIEW_RADIUS ** 2;
         const rotationAxis = new Vector3(1, 0, 0);
         const tempVertex = new Vector3();
 
@@ -127,8 +127,8 @@ export default class TilesPlayer extends Player {
             );
 
             do {
-                x = rand(-VIEW_SIZE, VIEW_SIZE);
-                y = rand(-VIEW_SIZE, VIEW_SIZE);
+                x = rand(-VIEW_RADIUS, VIEW_RADIUS);
+                y = rand(-VIEW_RADIUS, VIEW_RADIUS);
             } while (x ** 2 + y ** 2 > viewRadiusSquare);
 
             z = rand(-VIEW_DISTANCE, 0);
