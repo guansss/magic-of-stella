@@ -6,10 +6,17 @@ import { init as initWallpaper } from '@/we/WallpaperHelper';
 
 const mka = new Mka(document.getElementById('canvas') as HTMLCanvasElement);
 
-mka.addPlayer('tiles', new TilesPlayer());
-mka.addPlayer('motion', new MotionPlayer());
-mka.addPlayer('stats', new StatsPlayer());
-mka.camera.position.z = 5;
+let initialized = false;
+
+mka.on('we:*', (name: string, value: any, initial?: boolean) => {
+    if (!initialized && initial) {
+        initialized = true;
+
+        mka.addPlayer('tiles', new TilesPlayer());
+        mka.addPlayer('motion', new MotionPlayer());
+        mka.addPlayer('stats', new StatsPlayer());
+    }
+});
 
 initWallpaper(mka).then();
 

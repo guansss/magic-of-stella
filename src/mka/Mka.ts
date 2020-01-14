@@ -31,6 +31,8 @@ export default class Mka extends EventEmitter {
         window.addEventListener('resize', this.resize, { passive: true });
         this.resize();
 
+        this.camera.position.z = 5;
+
         this.rafId = requestAnimationFrame(this.tick);
     }
 
