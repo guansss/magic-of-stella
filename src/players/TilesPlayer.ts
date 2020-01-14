@@ -22,6 +22,7 @@ const SIZE_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
 const MIN_BRIGHTNESS = 0.4 * 255;
 const MAX_BRIGHTNESS = 0.9 * 255;
+const CAMERA_CLIP_DISTANCE = SIZE * 2;
 
 const COLORS = Array(10).fill(0).map(() => {
     let r = 0, g = 0, b = 0, brightness = 0;
@@ -150,10 +151,10 @@ export default class TilesPlayer extends Player {
         if (this.tiles) {
             const positions = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
             const positionsArray = positions.array as number[];
-            const cameraZ = this.mka!.camera.position.z;
+            const clippingZ = this.mka!.camera.position.z + CAMERA_CLIP_DISTANCE;
 
             for (let i = positionsArray.length - 1; i >= 0; i -= 3 * 4) {
-                if (positionsArray[i] > cameraZ) {
+                if (positionsArray[i] > clippingZ) {
                     positionsArray[i] -= VIEW_DISTANCE;
                     positionsArray[i - 3] -= VIEW_DISTANCE;
                     positionsArray[i - 6] -= VIEW_DISTANCE;
