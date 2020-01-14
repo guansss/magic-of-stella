@@ -32,6 +32,13 @@ namespace Ticker {
         return ~~(1000 / actualFrameInterval);
     }
 
+    export function pause() {
+    }
+
+    export function resume() {
+        before = then = now = performance.now();
+    }
+
     /**
      * @returns True if this tick is available for animation.
      */
@@ -40,18 +47,10 @@ namespace Ticker {
         elapsed = time - start;
 
         delta = time - before;
-        adjustedDelta = time - then;
 
-        if (adjustedDelta > frameInterval) {
-            before = time;
-            then = time - (adjustedDelta % frameInterval);
+        before = time;
 
-            actualFrameInterval += (delta - actualFrameInterval) / FILTER_STRENGTH;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 }
 

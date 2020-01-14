@@ -33,6 +33,8 @@ export default class Mka extends EventEmitter {
 
         this.camera.position.z = 5;
 
+        this.on('pause', this.pause, this).on('resume', this.resume, this);
+
         this.rafId = requestAnimationFrame(this.tick);
     }
 
@@ -100,6 +102,8 @@ export default class Mka extends EventEmitter {
         this._paused = true;
         cancelAnimationFrame(this.rafId);
 
+        Ticker.pause();
+
         this.forEachPlayer(player => {
             if (player.enabled) {
                 player.paused = true;
@@ -110,6 +114,8 @@ export default class Mka extends EventEmitter {
 
     resume() {
         this._paused = false;
+
+        Ticker.resume();
 
         this.forEachPlayer(player => {
             if (player.enabled) {
