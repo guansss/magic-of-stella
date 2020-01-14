@@ -1,2 +1,2 @@
-export const VIEW_SIZE = 200;
-export const VIEW_DISTANCE = 1500;
+export const VIEW_SIZE = 250;
+export const VIEW_DISTANCE = 1200;

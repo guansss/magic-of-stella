@@ -1,7 +1,8 @@
 import { VIEW_DISTANCE, VIEW_SIZE } from '@/constants';
 import Player from '@/mka/Player';
-import { rand } from '@/utils/misc';
+import { clamp, rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
+import debounce from 'lodash/debounce';
 import frag from 'raw-loader!@/shaders/tile.frag';
 import vert from 'raw-loader!@/shaders/tile.vert';
 import {
@@ -9,18 +10,19 @@ import {
     BufferGeometry,
     DoubleSide,
     Float32BufferAttribute,
+    Material,
     Mesh,
     ShaderMaterial,
     Uint8BufferAttribute,
     Vector3,
 } from 'three';
 
-const AMOUNT = 5000;
+const MAX_AMOUNT = 100000;
 const SIZE = 2.4;
 const PULSE_SCALE = 0.22;
 const SIZE_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
-const MIN_BRIGHTNESS = 0.4 * 255;
+const MIN_BRIGHTNESS = 0.5 * 255;
 const MAX_BRIGHTNESS = 0.9 * 255;
 const CAMERA_CLIP_DISTANCE = SIZE * 2;
 
@@ -44,10 +46,10 @@ const COLORS = Array(10).fill(0).map(() => {
 });
 
 export default class TilesPlayer extends Player {
-
     tiles?: Mesh;
 
     size = SIZE;
+    number = 0; // don't create until the number is set
 
     constructor() {
         super();
@@ -57,9 +59,30 @@ export default class TilesPlayer extends Player {
 
     attach() {
         this.setup();
+
+        this.mka!.on('we:tilesNumber', this.setNumber, this);
     }
 
+    detach() {
+        this.mka!.off('we:tilesNumber', this.setNumber);
+    }
+
+    setNumber = debounce((number: number) => {
+        number = clamp(number, 0, MAX_AMOUNT);
+
+        if (number !== this.number) {
+            this.number = number;
+
+            this.destroyTiles();
+            this.setup();
+        }
+    }, 500);
+
     setup() {
+        if (this.number <= 0 || this.tiles) {
+            return;
+        }
+
         console.time('createTiles');
         this.createTiles();
         console.timeEnd('createTiles');
@@ -91,7 +114,7 @@ export default class TilesPlayer extends Player {
             directions.push(tempVertex.x, tempVertex.y, tempVertex.z);
         }
 
-        for (let i = 0; i < AMOUNT; i++) {
+        for (let i = 0; i < this.number; i++) {
             offset = i * 4;
 
             indices.push(
@@ -144,6 +167,19 @@ export default class TilesPlayer extends Player {
         this.tiles = new Mesh(geometry, material);
     }
 
+    destroyTiles() {
+        if (this.tiles) {
+            this.tiles.geometry.dispose();
+            (this.tiles.material as Material).dispose();
+
+            if (this.mka) {
+                this.mka.scene.remove(this.tiles);
+            }
+
+            this.tiles = undefined;
+        }
+    }
+
     audioUpdate(audioSamples: number[]) {
         this.size += ((volumeOf(audioSamples) * PULSE_SCALE + 1) * SIZE - this.size) / SIZE_FILTER_STRENGTH;
     }
@@ -173,6 +209,7 @@ export default class TilesPlayer extends Player {
     }
 
     destroy() {
+        this.destroyTiles();
         removeAudioListener(this.audioUpdate);
     }
 }

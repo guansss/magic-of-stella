@@ -30,6 +30,15 @@
         "text": "ui_camera_rotation",
         "type": "bool",
         "value": true
+      },
+      "tilesNumber": {
+        "order": 4,
+        "text": "ui_tiles_number",
+        "type": "slider",
+        "value": 7000,
+        "min": 0,
+        "max": 20000,
+        "editable": true
       }
     }
   },
