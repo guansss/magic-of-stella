@@ -15,6 +15,8 @@ const enum State {Idle, Forward, Backward}
 export default class CameraPlayer extends Player {
     speed = 0.01;
 
+    rotationEnabled = false;
+
     targetAngleX = 0;
     targetAngleY = 0;
 
@@ -23,20 +25,26 @@ export default class CameraPlayer extends Player {
     startTime = 0;
 
     attach() {
-        this.mka!.on('we:cameraSpeed', this.speedUpdate, this);
+        this.mka!.on('we:cameraSpeed', this.speedUpdate, this)
+            .on('we:cameraRotation', this.rotationUpdate, this);
     }
 
     detach() {
-        this.mka!.off('we:cameraSpeed', this.speedUpdate);
+        this.mka!.off('we:cameraSpeed', this.speedUpdate)
+            .off('we:cameraRotation', this.rotationUpdate);
     }
 
     speedUpdate(speed: number) {
         this.speed = MAX_SPEED * clamp(speed / 100, 0, 1);
     }
 
+    rotationUpdate(enabled: boolean) {
+        this.rotationEnabled = enabled;
+    }
+
     updateAngle(camera: Camera) {
         if (this.state === State.Idle) {
-            if (Ticker.now > this.nextTime) {
+            if (this.rotationEnabled && Ticker.now > this.nextTime) {
                 this.state = State.Forward;
                 this.startTime = performance.now();
             }

@@ -24,6 +24,12 @@
         "min": 0,
         "max": 100,
         "editable": true
+      },
+      "cameraRotation": {
+        "order": 3,
+        "text": "ui_camera_rotation",
+        "type": "bool",
+        "value": true
       }
     }
   },

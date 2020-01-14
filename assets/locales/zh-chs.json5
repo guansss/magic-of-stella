@@ -1,4 +1,5 @@
 {
   "ui_info": "{NAME} v{VERSION}",
-  "ui_camera_speed": "镜头速度"
+  "ui_camera_speed": "镜头速度",
+  "ui_camera_rotation": "镜头旋转",
 }
