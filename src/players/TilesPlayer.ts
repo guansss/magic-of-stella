@@ -133,6 +133,7 @@ export default class TilesPlayer extends Player {
         const material = new ShaderMaterial({
             uniforms: {
                 size: { value: this.size },
+                far: { value: VIEW_DISTANCE },
             },
             vertexShader: vert,
             fragmentShader: frag,
