@@ -18,7 +18,7 @@ export default class Mka extends EventEmitter {
 
     renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
     scene = new Scene();
-    camera = new PerspectiveCamera(75, 1, 0.01, VIEW_DISTANCE);
+    camera = new PerspectiveCamera(50, 1, 0.01, VIEW_DISTANCE);
 
     /**
      * ID returned by `requestAnimationFrame()`
