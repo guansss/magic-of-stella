@@ -8,7 +8,7 @@ const tempDirection = new Vector3();
 const ROTATION_DURATION = 5000;
 const ROTATION_MAX_INTERVAL = 8000;
 const ROTATION_MIN_INTERVAL = 2000;
-const ROTATION_MAX_ANGLE = Math.PI / 6;
+const ROTATION_MAX_ANGLE = Math.PI / 12;
 const ROTATION_MAX_OFFSET_RATIO = 0.5;
 const MAX_SPEED = 0.1;
 
@@ -61,8 +61,6 @@ export default class CameraPlayer extends Player {
                 this.mka.camera.rotation.x = 0;
                 this.mka.camera.rotation.y = 0;
             }
-        } else if (this.mka) {
-            this.calculateAngle(this.mka.camera);
         }
     }
 
@@ -72,11 +70,8 @@ export default class CameraPlayer extends Player {
         const a = Math.PI * 2 * Math.random();
         const r = VIEW_RADIUS * ROTATION_MAX_OFFSET_RATIO * Math.sqrt(Math.random());
 
-        const directionX = Math.sign(camera.position.x || rand(-1, 1));
-        const directionY = Math.sign(camera.position.y || rand(-1, 1));
-
-        const targetX = -directionX * r * Math.abs(Math.cos(a));
-        const targetY = -directionY * r * Math.abs(Math.sin(a));
+        const targetX = r * Math.cos(a);
+        const targetY = r * Math.sin(a);
 
         const angleX = Math.atan((targetY - camera.position.y) / (this.speed * ROTATION_DURATION));
         const angleY = -Math.atan((targetX - camera.position.x) / (this.speed * ROTATION_DURATION));
