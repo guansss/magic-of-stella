@@ -1,7 +1,12 @@
 import { VIEW_DISTANCE } from '@/constants';
 import EventEmitter from '@/utils/EventEmitter';
 import autobind from 'autobind-decorator';
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { DoubleSide, PerspectiveCamera, Scene, ShaderMaterial, WebGLRenderer } from 'three';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import Player, { InternalPlayer } from './Player';
 import Ticker from './Ticker';
 
@@ -16,9 +21,16 @@ export default class Mka extends EventEmitter {
 
     private readonly players: { [name: string]: InternalPlayer } = {};
 
-    renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
+    renderer = new WebGLRenderer({
+        canvas: this.canvas,
+        antialias: true,
+        logarithmicDepthBuffer: true,
+    });
     scene = new Scene();
     camera = new PerspectiveCamera(50, 1, 0.01, VIEW_DISTANCE);
+
+    composer = new EffectComposer(this.renderer);
+    fxaaPass = new ShaderPass(FXAAShader);
 
     /**
      * ID returned by `requestAnimationFrame()`
@@ -31,6 +43,24 @@ export default class Mka extends EventEmitter {
         window.addEventListener('resize', this.resize, { passive: true });
         this.resize();
 
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+        this.composer.addPass(this.fxaaPass);
+
+        const bokehPass = new BokehPass(this.scene, this.camera, {
+            focus: 1400,
+            aperture: 0.00002,
+            maxblur: 1,
+        });
+        bokehPass.materialDepth.side = DoubleSide;
+        bokehPass.materialBokeh.onBeforeCompile = shader => {
+            // a hack to force the value of nearClip
+            shader.fragmentShader = shader.fragmentShader.replace(
+                'return perspectiveDepthToViewZ( depth, nearClip, farClip );',
+                'return perspectiveDepthToViewZ( depth, 10.0, farClip );',
+            );
+        };
+        this.composer.addPass(bokehPass);
+
         this.camera.position.z = 5;
 
         this.on('pause', this.pause, this).on('resume', this.resume, this);
@@ -40,9 +70,17 @@ export default class Mka extends EventEmitter {
 
     @autobind
     resize() {
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        this.renderer.setSize(width, height);
+        this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
+        this.composer.setSize(width, height);
+
+        // from official example webgl_postprocessing_fxaa
+        const pixelRatio = this.renderer.getPixelRatio();
+        (this.fxaaPass.material as ShaderMaterial).uniforms['resolution'].value.x = 1 / (width * pixelRatio);
+        (this.fxaaPass.material as ShaderMaterial).uniforms['resolution'].value.y = 1 / (height * pixelRatio);
     }
 
     addPlayer(name: string, player: Player, enabled = true) {
@@ -92,7 +130,7 @@ export default class Mka extends EventEmitter {
                     }
                 });
 
-                this.renderer.render(this.scene, this.camera);
+                this.composer.render();
             }
             this.rafId = requestAnimationFrame(this.tick);
         }

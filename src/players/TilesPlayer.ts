@@ -19,8 +19,8 @@ import {
 
 const MAX_AMOUNT = 100000;
 const SIZE = 2.4;
-const PULSE_SCALE = 0.22;
-const SIZE_FILTER_STRENGTH = 1.5;
+const PULSE_GROW = 0.22;
+const GROW_FILTER_STRENGTH = 1.5;
 const MAX_ANGLE = 1.5;
 const MIN_BRIGHTNESS = 0.5 * 255;
 const MAX_BRIGHTNESS = 0.9 * 255;
@@ -49,6 +49,7 @@ export default class TilesPlayer extends Player {
     tiles?: Mesh;
 
     size = SIZE;
+    grow = 0;
     number = 0; // don't create until the number is set
 
     attach() {
@@ -97,6 +98,7 @@ export default class TilesPlayer extends Player {
     }
 
     createTiles() {
+        const size = this.size;
         const viewRadiusSquare = VIEW_RADIUS ** 2;
         const rotationAxis = new Vector3(1, 0, 0);
         const tempVertex = new Vector3();
@@ -112,11 +114,21 @@ export default class TilesPlayer extends Player {
         let angle: number;
         let offset: number;
 
-        function addDirection(offsetX: number, offsetY: number, offsetZ: number, angle: number) {
-            tempVertex.set(offsetX, offsetY, offsetZ);
+        function addDirection(x: number, y: number, z: number, offsetX: number, offsetY: number, angle: number) {
+            tempVertex.set(offsetX, offsetY, 0);
             tempVertex.applyAxisAngle(rotationAxis, angle);
             directions.push(tempVertex.x, tempVertex.y, tempVertex.z);
+            vertices.push(tempVertex.x * size + x, tempVertex.y * size + y, tempVertex.z * size + z);
         }
+
+        const zPositions: number[] = [];
+
+        for (let i = 0; i < this.number; i++) {
+            zPositions[i] = rand(-VIEW_DISTANCE, 0);
+        }
+
+        // sort vertices by z position
+        zPositions.sort((a, b) => a - b);
 
         for (let i = 0; i < this.number; i++) {
             offset = i * 4;
@@ -131,21 +143,14 @@ export default class TilesPlayer extends Player {
                 y = rand(-VIEW_RADIUS, VIEW_RADIUS);
             } while (x ** 2 + y ** 2 > viewRadiusSquare);
 
-            z = rand(-VIEW_DISTANCE, 0);
-
-            vertices.push(
-                x, y, z,
-                x, y, z,
-                x, y, z,
-                x, y, z,
-            );
+            z = zPositions[i];
 
             angle = rand(0, MAX_ANGLE);
 
-            addDirection(-0.5, -0.5, 0, angle);
-            addDirection(0.5, -0.5, 0, angle);
-            addDirection(-0.5, 0.5, 0, angle);
-            addDirection(0.5, 0.5, 0, angle);
+            addDirection(x, y, z, -0.5, -0.5, angle);
+            addDirection(x, y, z, 0.5, -0.5, angle);
+            addDirection(x, y, z, -0.5, 0.5, angle);
+            addDirection(x, y, z, 0.5, 0.5, angle);
 
             colors.push(...COLORS[~~rand(0, COLORS.length)]);
         }
@@ -159,7 +164,7 @@ export default class TilesPlayer extends Player {
 
         const material = new ShaderMaterial({
             uniforms: {
-                size: { value: this.size },
+                grow: { value: this.grow },
                 far: { value: VIEW_DISTANCE },
             },
             vertexShader: vert,
@@ -185,7 +190,7 @@ export default class TilesPlayer extends Player {
     }
 
     audioUpdate(audioSamples: number[]) {
-        this.size += ((volumeOf(audioSamples) * PULSE_SCALE + 1) * SIZE - this.size) / SIZE_FILTER_STRENGTH;
+        this.grow += (volumeOf(audioSamples) * PULSE_GROW - this.grow) / GROW_FILTER_STRENGTH;
     }
 
     update(): boolean {
@@ -206,7 +211,7 @@ export default class TilesPlayer extends Player {
 
             this.tiles.geometry.computeBoundingSphere();
 
-            (this.tiles.material as ShaderMaterial).uniforms.size.value = this.size;
+            (this.tiles.material as ShaderMaterial).uniforms.grow.value = this.grow;
         }
 
         return true;

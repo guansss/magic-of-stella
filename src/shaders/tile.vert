@@ -3,16 +3,14 @@ precision highp float;
 attribute vec3 direction;
 attribute vec3 color;
 
-uniform float size;
+uniform float grow;
+uniform float near;
 uniform float far;
 
-varying vec3 vColor;
-varying float depth;
+varying vec4 vColor;
 
 void main() {
-    vColor = color;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position + direction * grow, 1.0);
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position + direction * size, 1.0);
-
-    depth = 1.0 - 0.8 * gl_Position.z / far;
+    vColor = vec4(color, (1.0 - 0.8 * gl_Position.z / far) * 0.8);
 }
