@@ -80,6 +80,12 @@
             "label": "SSAA 32x"
           }
         ]
+      },
+      "error": {
+        "order": 99,
+        "text": "ui_error",
+        "type": "bool",
+        "value": true
       }
     }
   },

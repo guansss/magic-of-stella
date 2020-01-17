@@ -6,5 +6,6 @@
   "ui_tiles_number": "Tiles Number",
   "ui_dof": "Depth of Field (DOF)",
   "ui_anti_aliasing": "Anti-aliasing",
-  "ui_none": "None"
+  "ui_none": "None",
+  "ui_error": "Display Error Message",
 }

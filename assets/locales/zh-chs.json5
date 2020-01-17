@@ -6,4 +6,5 @@
   "ui_dof": "景深(DOF)",
   "ui_anti_aliasing": "抗锯齿",
   "ui_none": "无",
+  "ui_error": "显示错误信息",
 }

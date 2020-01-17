@@ -25,6 +25,7 @@ const mka = new Mka();
 let initialized = false;
 
 mka.on('afterUpdate', () => postprocessing.render(Ticker.delta))
+    .on('we:error', (enabled: boolean) => messageDOM && (messageDOM.style.display = enabled ? 'block' : 'none'))
     .on('we:dof', (enabled: boolean) => postprocessing.setBokeh(enabled))
     .on('we:aa', (value: string) => {
         switch (value) {
@@ -64,7 +65,18 @@ mka.on('afterUpdate', () => postprocessing.render(Ticker.delta))
 
 initWallpaper(mka).then();
 
-window.addEventListener('resize', () => {
-    mka.emit('resize');
-    postprocessing.resize();
-}, { passive: true });
+let messageDOM = document.getElementById('message');
+
+window.onerror = (event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error) => {
+    if (!messageDOM) {
+        messageDOM = document.createElement('pre');
+        messageDOM.id = 'message';
+        document.body.appendChild(messageDOM);
+    }
+
+    messageDOM.innerHTML = `${error && error.toString()}
+Msg: ${event}
+Src: ${source}
+Ln: ${lineno}
+Col ${colno}`;
+};
