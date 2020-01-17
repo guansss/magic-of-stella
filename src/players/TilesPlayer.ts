@@ -3,15 +3,17 @@ import Player from '@/mka/Player';
 import { clamp, rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
 import debounce from 'lodash/debounce';
-import frag from 'raw-loader!@/shaders/tile.frag';
-import vert from 'raw-loader!@/shaders/tile.vert';
+import frag from 'raw-loader!@/rendering/tile.frag';
+import vert from 'raw-loader!@/rendering/tile.vert';
 import {
     BufferAttribute,
     BufferGeometry,
+    Camera,
     DoubleSide,
     Float32BufferAttribute,
     Material,
     Mesh,
+    Scene,
     ShaderMaterial,
     Uint8BufferAttribute,
     Vector3,
@@ -52,6 +54,10 @@ export default class TilesPlayer extends Player {
     grow = 0;
     number = 0; // don't create until the number is set
 
+    constructor(readonly scene: Scene, readonly camera: Camera) {
+        super();
+    }
+
     attach() {
         this.setup();
 
@@ -91,10 +97,6 @@ export default class TilesPlayer extends Player {
         console.time('createTiles');
         this.createTiles();
         console.timeEnd('createTiles');
-
-        if (this.mka) {
-            this.mka.scene.add(this.tiles!);
-        }
     }
 
     createTiles() {
@@ -174,6 +176,7 @@ export default class TilesPlayer extends Player {
         });
 
         this.tiles = new Mesh(geometry, material);
+        this.scene.add(this.tiles);
     }
 
     destroyTiles() {
@@ -181,10 +184,7 @@ export default class TilesPlayer extends Player {
             this.tiles.geometry.dispose();
             (this.tiles.material as Material).dispose();
 
-            if (this.mka) {
-                this.mka.scene.remove(this.tiles);
-            }
-
+            this.scene.remove(this.tiles);
             this.tiles = undefined;
         }
     }
@@ -197,7 +197,7 @@ export default class TilesPlayer extends Player {
         if (this.tiles) {
             const positions = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
             const positionsArray = positions.array as number[];
-            const clippingZ = this.mka!.camera.position.z + CAMERA_CLIP_DISTANCE;
+            const clippingZ = this.camera.position.z + CAMERA_CLIP_DISTANCE;
 
             for (let i = positionsArray.length - 1; i >= 0; i -= 3 * 4) {
                 if (positionsArray[i] > clippingZ) {

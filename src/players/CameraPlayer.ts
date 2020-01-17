@@ -1,12 +1,13 @@
 import Player from '@/mka/Player';
 import Ticker from '@/mka/Ticker';
+import { Camera } from 'three';
 import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls';
 
 export default class CameraPlayer extends Player {
 
     controls?: FirstPersonControls;
 
-    constructor() {
+    constructor(readonly camera: Camera) {
         super();
     }
 
@@ -15,13 +16,11 @@ export default class CameraPlayer extends Player {
     }
 
     setup() {
-        if (this.mka) {
-            this.controls = new FirstPersonControls(this.mka.camera, document.body);
+        this.controls = new FirstPersonControls(this.camera, document.body);
 
-            this.controls.movementSpeed = 0.01;
-            this.controls.lookSpeed = 0.0001;
-            this.controls.lookVertical = true;
-        }
+        this.controls.movementSpeed = 0.01;
+        this.controls.lookSpeed = 0.0001;
+        this.controls.lookVertical = true;
     }
 
     update(): boolean {
