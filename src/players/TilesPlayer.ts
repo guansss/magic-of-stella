@@ -12,7 +12,7 @@ import {
     DoubleSide,
     Float32BufferAttribute,
     Material,
-    Mesh,
+    Mesh, PerspectiveCamera,
     Scene,
     ShaderMaterial,
     Uint8BufferAttribute,
@@ -48,13 +48,25 @@ const COLORS = Array(10).fill(0).map(() => {
 });
 
 export default class TilesPlayer extends Player {
+    material = new ShaderMaterial({
+        uniforms: {
+            grow: { value: 0 },
+            near: { value: this.camera.near },
+            far: { value: this.camera.far },
+        },
+        vertexShader: vert,
+        fragmentShader: frag,
+        side: DoubleSide,
+        transparent: true,
+        flatShading: true,
+    });
     tiles?: Mesh;
 
     size = SIZE;
     grow = 0;
     number = 0; // don't create until the number is set
 
-    constructor(readonly scene: Scene, readonly camera: Camera) {
+    constructor(readonly scene: Scene, readonly camera: PerspectiveCamera) {
         super();
 
         addAudioListener(this.audioUpdate, this);
@@ -160,18 +172,7 @@ export default class TilesPlayer extends Player {
         geometry.setAttribute('direction', new Float32BufferAttribute(directions, 3));
         geometry.setAttribute('color', new Uint8BufferAttribute(colors, 3, true));
 
-        const material = new ShaderMaterial({
-            uniforms: {
-                grow: { value: this.grow },
-                far: { value: VIEW_DISTANCE },
-            },
-            vertexShader: vert,
-            fragmentShader: frag,
-            side: DoubleSide,
-            transparent: true,
-        });
-
-        this.tiles = new Mesh(geometry, material);
+        this.tiles = new Mesh(geometry, this.material);
         this.scene.add(this.tiles);
     }
 
