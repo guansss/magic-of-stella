@@ -4,4 +4,7 @@
   "ui_camera_speed": "Camera Speed",
   "ui_camera_rotation": "Camera Rotation",
   "ui_tiles_number": "Tiles Number",
+  "ui_dof": "Depth of Field (DOF)",
+  "ui_anti_aliasing": "Anti-aliasing",
+  "ui_none": "None"
 }

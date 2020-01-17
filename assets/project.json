@@ -3,7 +3,7 @@
   "description": "",
   "file": "index.html",
   "general": {
-    "supportsaudioprocessing" : true,
+    "supportsaudioprocessing": true,
     "localization": {},
     "properties": {
       "schemecolor": {
@@ -16,8 +16,17 @@
         "order": 1,
         "text": "ui_info"
       },
-      "cameraSpeed": {
+      "tilesNumber": {
         "order": 2,
+        "text": "ui_tiles_number",
+        "type": "slider",
+        "value": 7000,
+        "min": 0,
+        "max": 20000,
+        "editable": true
+      },
+      "cameraSpeed": {
+        "order": 3,
         "text": "ui_camera_speed",
         "type": "slider",
         "value": 10,
@@ -26,19 +35,51 @@
         "editable": true
       },
       "cameraRotation": {
-        "order": 3,
+        "order": 4,
         "text": "ui_camera_rotation",
         "type": "bool",
         "value": true
       },
-      "tilesNumber": {
-        "order": 4,
-        "text": "ui_tiles_number",
-        "type": "slider",
-        "value": 7000,
-        "min": 0,
-        "max": 20000,
-        "editable": true
+      "dof": {
+        "order": 11,
+        "text": "ui_dof",
+        "type": "bool",
+        "value": true
+      },
+      "aa": {
+        "order": 12,
+        "condition": "dof.value",
+        "text": "ui_anti_aliasing",
+        "type": "combo",
+        "value": "ssaa_4x",
+        "options": [
+          {
+            "value": "none",
+            "label": "ui_none"
+          },
+          {
+            "value": "fxaa",
+            "label": "FXAA"
+          }, {
+            "value": "smaa",
+            "label": "SMAA"
+          }, {
+            "value": "ssaa_2x",
+            "label": "SSAA 2x"
+          }, {
+            "value": "ssaa_4x",
+            "label": "SSAA 4x"
+          }, {
+            "value": "ssaa_8x",
+            "label": "SSAA 8x"
+          }, {
+            "value": "ssaa_16x",
+            "label": "SSAA 16x"
+          }, {
+            "value": "ssaa_32x",
+            "label": "SSAA 32x"
+          }
+        ]
       }
     }
   },

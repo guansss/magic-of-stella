@@ -8,6 +8,9 @@ import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
 import { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 
+type FXAAPass = ShaderPass
+type SSAAPass = SSAARenderPass
+
 interface PassOptions {
     enabled?: boolean,
     level?: number
@@ -22,6 +25,8 @@ export default class Postprocessing {
         window.innerHeight * this.renderer.getPixelRatio(),
     );
     ssaaPass = new SSAARenderPass(this.scene, this.camera, 0x000000, 0);
+
+    antiAliasingPass?: FXAAPass | SMAAPass | SSAAPass; // current anti-aliasing pass
 
     bokehPass = new BokehPass(this.scene, this.camera, {
         focus: 1400,
@@ -38,6 +43,7 @@ export default class Postprocessing {
         // don't know why but BokehPass must not be added before any of anti-aliasing passes
         this.composer.addPass(this.bokehPass);
 
+        // disable all passes
         this.fxaaPass.enabled = false;
         this.smaaPass.enabled = false;
         this.ssaaPass.enabled = false;
@@ -72,12 +78,39 @@ export default class Postprocessing {
         (this.fxaaPass.material as ShaderMaterial).uniforms['resolution'].value.y = 1 / (height * pixelRatio);
     }
 
-    enablePass(pass: Pass) {
-        pass.enabled = true;
+    configurePass(pass: Pass, options: PassOptions) {
+        if (options.enabled !== undefined) {
+            pass.enabled = options.enabled;
+        }
+
+        if (pass === this.ssaaPass && options.level !== undefined && options.level >= 0 && options.level <= 5) {
+            this.ssaaPass.sampleLevel = options.level;
+        }
     }
 
-    disablePass(pass: Pass) {
-        pass.enabled = false;
+    setBokeh(enabled: boolean) {
+        this.bokehPass.enabled = enabled;
+
+        // disable anti-aliasing when bokeh is disabled
+        if (this.antiAliasingPass) {
+            this.antiAliasingPass.enabled = enabled;
+        }
+    }
+
+    setAntiAliasing(pass?: FXAAPass | SMAAPass | SSAAPass, level?: number) {
+        if (this.antiAliasingPass) {
+            this.antiAliasingPass.enabled = false;
+        }
+
+        if (pass) {
+            pass.enabled = true;
+        }
+
+        this.antiAliasingPass = pass;
+
+        if (level !== undefined && level >= 0 && level <= 5) {
+            this.ssaaPass.sampleLevel = level;
+        }
     }
 
     render(dt: DOMHighResTimeStamp) {

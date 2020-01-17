@@ -24,8 +24,33 @@ const mka = new Mka();
 
 let initialized = false;
 
-mka.on('afterUpdate', () => {
-        postprocessing.render(Ticker.delta);
+mka.on('afterUpdate', () => postprocessing.render(Ticker.delta))
+    .on('we:dof', (enabled: boolean) => postprocessing.setBokeh(enabled))
+    .on('we:aa', (value: string) => {
+        switch (value) {
+            case 'fxaa':
+                postprocessing.setAntiAliasing(postprocessing.fxaaPass);
+                break;
+
+            case 'smaa':
+                postprocessing.setAntiAliasing(postprocessing.smaaPass);
+                break;
+
+            default:
+                if (value.startsWith('ssaa')) {
+                    postprocessing.setAntiAliasing(postprocessing.ssaaPass,
+                        ({
+                            '2x': 1,
+                            '4x': 2,
+                            '8x': 3,
+                            '16x': 4,
+                            '32x': 5,
+                        } as any)[value.slice('ssaa_'.length)],
+                    );
+                } else {
+                    postprocessing.setAntiAliasing(undefined);
+                }
+        }
     })
     .on('we:*', (name: string, value: any, initial?: boolean) => {
         if (!initialized && initial) {

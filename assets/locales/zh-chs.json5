@@ -3,4 +3,7 @@
   "ui_camera_speed": "镜头速度",
   "ui_camera_rotation": "镜头旋转",
   "ui_tiles_number": "方块数量",
+  "ui_dof": "景深(DOF)",
+  "ui_anti_aliasing": "抗锯齿",
+  "ui_none": "无",
 }
