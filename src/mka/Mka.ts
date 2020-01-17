@@ -97,19 +97,23 @@ export default class Mka extends EventEmitter {
     resume() {
         this._paused = false;
 
-        // postpone the resuming to prevent discrepancy of timestamp
-        // https://stackoverflow.com/a/38360320
-        this.rafId = requestAnimationFrame(now => {
-            Ticker.resume(now);
+        // postpone the resuming to prevent discrepancy of timestamp (https://stackoverflow.com/a/38360320)
+        // note that we must wrap it with two rAF here, because in WE, the first rAF will possibly be invoked with
+        //  timestamp of the animation frame that is right after the pausing frame, and thus the Ticker.timeSincePause
+        //  will be broken.
+        this.rafId = requestAnimationFrame(() => {
+            this.rafId = requestAnimationFrame(now => {
+                Ticker.resume(now);
 
-            this.forEachPlayer(player => {
-                if (player.enabled) {
-                    player.paused = false;
-                    player.resume();
-                }
+                this.forEachPlayer(player => {
+                    if (player.enabled) {
+                        player.paused = false;
+                        player.resume();
+                    }
+                });
+
+                this.tick(now);
             });
-
-            this.tick(now);
         });
     }
 

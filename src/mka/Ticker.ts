@@ -44,10 +44,12 @@ namespace Ticker {
             elapsedSincePause += time - pauseTime;
         }
 
+        paused = true;
         pauseTime = time;
     }
 
     export function resume(time: DOMHighResTimeStamp) {
+        paused = false;
         before = then = now = time;
         elapsedSincePause = now - pauseTime;
     }
