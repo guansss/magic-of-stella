@@ -97,16 +97,20 @@ export default class Mka extends EventEmitter {
     resume() {
         this._paused = false;
 
-        Ticker.resume();
+        // postpone the resuming to prevent discrepancy of timestamp
+        // https://stackoverflow.com/a/38360320
+        this.rafId = requestAnimationFrame(now => {
+            Ticker.resume(now);
 
-        this.forEachPlayer(player => {
-            if (player.enabled) {
-                player.paused = false;
-                player.resume();
-            }
+            this.forEachPlayer(player => {
+                if (player.enabled) {
+                    player.paused = false;
+                    player.resume();
+                }
+            });
+
+            this.tick(now);
         });
-
-        requestAnimationFrame(this.tick);
     }
 
     forEachPlayer(fn: (player: InternalPlayer, name: string) => void) {

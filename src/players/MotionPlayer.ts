@@ -23,22 +23,29 @@ export default class CameraPlayer extends Player {
     targetAngleY = 0;
 
     rotationState = State.Idle;
-    nextTime = 0;
-    startTime = 0;
+    rotationNextTime = 0;
+    rotationStartTime = 0;
 
     constructor(readonly camera: Camera) {
         super();
     }
 
     attach() {
+        this.rotationNextTime = Ticker.now + rand(ROTATION_MIN_INTERVAL, ROTATION_MAX_INTERVAL);
+
         this.mka!.on('we:cameraSpeed', this.speedUpdate, this)
-            .on('we:cameraRotation', this.rotationUpdate, this);
+            .on('we:cameraRotation', this.setRotation, this);
     }
 
     detach() {
         this.rotationState = State.Idle;
         this.mka!.off('we:cameraSpeed', this.speedUpdate)
-            .off('we:cameraRotation', this.rotationUpdate);
+            .off('we:cameraRotation', this.setRotation);
+    }
+
+    resume() {
+        this.rotationStartTime += Ticker.elapsedSincePause;
+        this.rotationNextTime += Ticker.elapsedSincePause;
     }
 
     speedUpdate(speed: number) {
@@ -49,11 +56,11 @@ export default class CameraPlayer extends Player {
             this.rotationState = State.Backward;
             this.targetAngleX = this.camera.rotation.x;
             this.targetAngleY = this.camera.rotation.y;
-            this.startTime = Ticker.now;
+            this.rotationStartTime = Ticker.now;
         }
     }
 
-    rotationUpdate(enabled: boolean) {
+    setRotation(enabled: boolean) {
         this.rotationEnabled = enabled;
 
         if (!enabled) {
@@ -84,12 +91,14 @@ export default class CameraPlayer extends Player {
 
     updateAngle() {
         if (this.rotationState === State.Idle) {
-            if (this.rotationEnabled && Ticker.now > this.nextTime) {
+            if (this.rotationEnabled && Ticker.now > this.rotationNextTime) {
                 this.rotationState = State.Forward;
-                this.startTime = performance.now();
+                this.rotationStartTime = Ticker.now;
+
+                this.calculateAngle();
             }
         } else {
-            const t = clamp((Ticker.now - this.startTime) / ROTATION_DURATION, 0, 1);
+            const t = clamp((Ticker.now - this.rotationStartTime) / ROTATION_DURATION, 0, 1);
             const sqt = t ** 2;
             const blend = sqt / (2 * (sqt - t) + 1);
 
@@ -99,7 +108,7 @@ export default class CameraPlayer extends Player {
 
                 if (t >= 1) {
                     this.rotationState = State.Backward;
-                    this.startTime = Ticker.now;
+                    this.rotationStartTime = Ticker.now;
                 }
             } else {
                 this.camera.rotation.x = this.targetAngleX * (1 - blend);
@@ -107,9 +116,7 @@ export default class CameraPlayer extends Player {
 
                 if (t >= 1) {
                     this.rotationState = State.Idle;
-                    this.nextTime = Ticker.now + rand(ROTATION_MIN_INTERVAL, ROTATION_MAX_INTERVAL);
-
-                    this.calculateAngle();
+                    this.rotationNextTime = Ticker.now + rand(ROTATION_MIN_INTERVAL, ROTATION_MAX_INTERVAL);
                 }
             }
         }

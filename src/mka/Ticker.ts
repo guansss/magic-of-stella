@@ -10,6 +10,10 @@ namespace Ticker {
     let before = start;
     export let delta = now - before;
 
+    export let paused = false;
+    let pauseTime = now;
+    export let elapsedSincePause = now - pauseTime;
+
     // see https://stackoverflow.com/a/19772220
     let then = start;
     let adjustedDelta = now - then;
@@ -33,10 +37,19 @@ namespace Ticker {
     }
 
     export function pause() {
+        const time = performance.now();
+
+        // pause can be triggered multiple times in WE, probably when interacting with multiple monitors
+        if (paused) {
+            elapsedSincePause += time - pauseTime;
+        }
+
+        pauseTime = time;
     }
 
-    export function resume() {
-        before = then = now = performance.now();
+    export function resume(time: DOMHighResTimeStamp) {
+        before = then = now = time;
+        elapsedSincePause = now - pauseTime;
     }
 
     /**
