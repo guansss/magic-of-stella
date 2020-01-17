@@ -75,6 +75,12 @@ const config = {
                     'file-loader',
                 ],
             },
+            {
+                test: /\.(vert|frag)$/,
+                use: [
+                    'raw-loader',
+                ],
+            },
         ],
     },
     plugins: [

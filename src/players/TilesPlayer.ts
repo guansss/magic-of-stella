@@ -1,10 +1,10 @@
 import { VIEW_DISTANCE, VIEW_RADIUS } from '@/constants';
 import Player from '@/mka/Player';
+import frag from '@/rendering/tile.frag';
+import vert from '@/rendering/tile.vert';
 import { clamp, rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
 import debounce from 'lodash/debounce';
-import frag from 'raw-loader!@/rendering/tile.frag';
-import vert from 'raw-loader!@/rendering/tile.vert';
 import {
     BufferAttribute,
     BufferGeometry,
