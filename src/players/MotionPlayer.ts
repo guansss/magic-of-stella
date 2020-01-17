@@ -5,9 +5,9 @@ import { clamp, rand } from '@/utils/misc';
 import { Camera, Vector3 } from 'three';
 
 const tempDirection = new Vector3();
-const ROTATION_DURATION = 5000;
+const ROTATION_DURATION = 8000;
 const ROTATION_MAX_INTERVAL = 8000;
-const ROTATION_MIN_INTERVAL = 2000;
+const ROTATION_MIN_INTERVAL = 3000;
 const ROTATION_MAX_ANGLE = Math.PI / 12;
 const ROTATION_MAX_OFFSET_RATIO = 0.5;
 const MAX_SPEED = 0.1;

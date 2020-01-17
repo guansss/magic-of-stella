@@ -21,8 +21,8 @@ import {
 
 const MAX_AMOUNT = 100000;
 const SIZE = 2.4;
-const PULSE_GROW = 0.22;
-const GROW_FILTER_STRENGTH = 1.5;
+const PULSE_GROW = 0.28;
+const GROW_FILTER_STRENGTH = 1.1;
 const MAX_ANGLE = 1.5;
 const MIN_BRIGHTNESS = 0.5 * 255;
 const MAX_BRIGHTNESS = 0.9 * 255;

@@ -12,7 +12,7 @@ type AudioListener = typeof audioListener
 
 const listeners: { listener: AudioListener, ctx?: any }[] = [];
 
-const FILTER_STRENGTH = 200;
+const FILTER_STRENGTH = 20;
 const LOWER_VOLUME = 0.1;
 const UPPER_VOLUME = 1.3;
 let maxVolume = LOWER_VOLUME;
