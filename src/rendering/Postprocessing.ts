@@ -4,12 +4,25 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { Pass } from 'three/examples/jsm/postprocessing/Pass';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass';
+import { SSAARenderPass } from 'three/examples/jsm/postprocessing/SSAARenderPass';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
+
+interface PassOptions {
+    enabled?: boolean,
+    level?: number
+}
 
 export default class Postprocessing {
     composer = new EffectComposer(this.renderer);
 
     fxaaPass = new ShaderPass(FXAAShader);
+    smaaPass = new SMAAPass(
+        window.innerWidth * this.renderer.getPixelRatio(),
+        window.innerHeight * this.renderer.getPixelRatio(),
+    );
+    ssaaPass = new SSAARenderPass(this.scene, this.camera, 0x000000, 0);
+
     bokehPass = new BokehPass(this.scene, this.camera, {
         focus: 1400,
         aperture: 0.00002,
@@ -19,7 +32,16 @@ export default class Postprocessing {
     constructor(readonly renderer: WebGLRenderer, readonly scene: Scene, readonly camera: PerspectiveCamera) {
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(this.fxaaPass);
+        this.composer.addPass(this.smaaPass);
+        this.composer.addPass(this.ssaaPass);
+
+        // don't know why but BokehPass must not be added before any of anti-aliasing passes
         this.composer.addPass(this.bokehPass);
+
+        this.fxaaPass.enabled = false;
+        this.smaaPass.enabled = false;
+        this.ssaaPass.enabled = false;
+        this.bokehPass.enabled = false;
 
         this.bokehPass.materialDepth.side = DoubleSide;
         this.bokehPass.materialBokeh.onBeforeCompile = shader => {
@@ -29,6 +51,8 @@ export default class Postprocessing {
                 'return perspectiveDepthToViewZ( depth, 10.0, farClip );',
             );
         };
+
+        this.ssaaPass.sampleLevel = 2;
 
         this.resize();
     }
