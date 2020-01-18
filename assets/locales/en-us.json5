@@ -1,6 +1,6 @@
 {
   // translations begin with "ui_" will be used in project.json
-  "ui_info": "{NAME} v{VERSION}",
+  "ui_info": "<font color=#e3707c size=4>{NAME} v{VERSION}<font>",
   "ui_camera_speed": "Camera Speed",
   "ui_camera_rotation": "Camera Rotation",
   "ui_tiles_number": "Tiles Number",

@@ -1,5 +1,5 @@
 {
-  "ui_info": "{NAME} v{VERSION}",
+  "ui_info": "<font color=#e3707c size=4>{NAME} v{VERSION}<font>",
   "ui_camera_speed": "镜头速度",
   "ui_camera_rotation": "镜头旋转",
   "ui_tiles_number": "方块数量",
