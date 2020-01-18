@@ -5,9 +5,9 @@ import { clamp, rand } from '@/utils/misc';
 import { Camera, Vector3 } from 'three';
 
 const tempDirection = new Vector3();
-const ROTATION_DURATION = 8000;
-const ROTATION_MAX_INTERVAL = 8000;
-const ROTATION_MIN_INTERVAL = 3000;
+const ROTATION_DURATION = 10000;
+const ROTATION_MAX_INTERVAL = 30000;
+const ROTATION_MIN_INTERVAL = 5000;
 const ROTATION_MAX_ANGLE = Math.PI / 12;
 const ROTATION_MAX_OFFSET_RATIO = 0.5;
 const MAX_SPEED = 0.1;
@@ -31,8 +31,6 @@ export default class CameraPlayer extends Player {
     }
 
     attach() {
-        this.rotationNextTime = Ticker.now + rand(ROTATION_MIN_INTERVAL, ROTATION_MAX_INTERVAL);
-
         this.mka!.on('we:cameraSpeed', this.speedUpdate, this)
             .on('we:cameraRotation', this.setRotation, this);
     }
@@ -63,7 +61,14 @@ export default class CameraPlayer extends Player {
     setRotation(enabled: boolean) {
         this.rotationEnabled = enabled;
 
-        if (!enabled) {
+        if (enabled) {
+            // postpone rotation if this is the first time
+            if (this.rotationNextTime === 0) {
+                this.rotationNextTime = Ticker.now + rand(ROTATION_MIN_INTERVAL, ROTATION_MAX_INTERVAL);
+            } else {
+                this.rotationNextTime = Ticker.now;
+            }
+        } else {
             this.rotationState = State.Idle;
 
             this.camera.position.x = 0;
