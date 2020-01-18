@@ -15,6 +15,7 @@ import {
     PerspectiveCamera,
     Scene,
     ShaderMaterial,
+    TypedArray,
     Uint8BufferAttribute,
     Vector3,
 } from 'three';
@@ -59,12 +60,16 @@ export default class TilesPlayer extends Player {
         side: DoubleSide,
         transparent: true,
         flatShading: true,
+        depthTest: false,
+        depthWrite: false,
     });
     tiles?: Mesh;
 
     size = SIZE;
     grow = 0;
     number = 0; // don't create until the number is set
+
+    vertexFront = 0; // the front index of vertices circular queue, representing the tile which is nearest to camera
 
     constructor(readonly scene: Scene, readonly camera: PerspectiveCamera) {
         super();
@@ -138,7 +143,7 @@ export default class TilesPlayer extends Player {
             zPositions[i] = rand(-VIEW_DISTANCE, 0);
         }
 
-        // sort vertices by z position
+        // sort vertices by depth (Z position) in order of [far ... near] to let tiles be correctly blended
         zPositions.sort((a, b) => a - b);
 
         for (let i = 0; i < this.number; i++) {
@@ -168,6 +173,8 @@ export default class TilesPlayer extends Player {
             colors.push(...COLORS[~~rand(0, COLORS.length)]);
         }
 
+        this.vertexFront = vertices.length - 1;
+
         const geometry = new BufferGeometry();
 
         geometry.setIndex(indices);
@@ -195,18 +202,51 @@ export default class TilesPlayer extends Player {
 
     update(): boolean {
         if (this.tiles) {
-            const positions = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
-            const positionsArray = positions.array as number[];
+            const indices = (this.tiles.geometry as BufferGeometry).index!;
+            const vertices = (this.tiles.geometry as BufferGeometry).attributes.position as BufferAttribute;
+            const indicesArray = indices.array as TypedArray;
+            const verticesArray = vertices.array as TypedArray;
             const clippingZ = this.camera.position.z + CAMERA_CLIP_DISTANCE;
+            const indicesPerTile = 3 * 2;
+            const verticesPerTile = 3 * 4;
 
-            for (let i = positionsArray.length - 1; i >= 0; i -= 3 * 4) {
-                if (positionsArray[i] > clippingZ) {
-                    positionsArray[i] -= VIEW_DISTANCE;
-                    positionsArray[i - 3] -= VIEW_DISTANCE;
-                    positionsArray[i - 6] -= VIEW_DISTANCE;
-                    positionsArray[i - 9] -= VIEW_DISTANCE;
-                    positions.needsUpdate = true;
+            let clippedTilesCount = 0;
+
+            // start checking from the front index of vertices array, which is a circular queue
+            let i = this.vertexFront;
+
+            while (true) {
+                if (verticesArray[i] > clippingZ) {
+                    clippedTilesCount++;
+
+                    // change Z position to the farthest
+                    verticesArray[i] -= VIEW_DISTANCE;
+                    verticesArray[i - 3] -= VIEW_DISTANCE;
+                    verticesArray[i - 3 * 2] -= VIEW_DISTANCE;
+                    verticesArray[i - 3 * 3] -= VIEW_DISTANCE;
+
+                    vertices.needsUpdate = true;
+                } else {
+                    this.vertexFront = i;
+                    break;
                 }
+
+                i -= verticesPerTile;
+
+                if (i < 0) {
+                    // return to array's end
+                    i = verticesArray.length - 1;
+                }
+            }
+
+            if (clippedTilesCount > 0) {
+                const clipped = indicesArray.slice(indicesArray.length - clippedTilesCount * indicesPerTile);
+
+                // move indices of the clipped tiles to array's beginning, for keeping the depth order in indices array
+                indicesArray.copyWithin(clipped.length, 0);
+                indicesArray.set(clipped, 0);
+
+                indices.needsUpdate = true;
             }
 
             this.tiles.geometry.computeBoundingSphere();
