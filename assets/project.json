@@ -31,8 +31,7 @@
         "type": "slider",
         "value": 10,
         "min": 0,
-        "max": 100,
-        "editable": true
+        "max": 100
       },
       "cameraRotation": {
         "order": 4,
