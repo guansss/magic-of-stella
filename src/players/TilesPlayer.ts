@@ -8,11 +8,11 @@ import debounce from 'lodash/debounce';
 import {
     BufferAttribute,
     BufferGeometry,
-    Camera,
     DoubleSide,
     Float32BufferAttribute,
     Material,
-    Mesh, PerspectiveCamera,
+    Mesh,
+    PerspectiveCamera,
     Scene,
     ShaderMaterial,
     Uint8BufferAttribute,
@@ -23,8 +23,8 @@ const MAX_AMOUNT = 100000;
 const SIZE = 2.4;
 const PULSE_GROW = 0.28;
 const GROW_FILTER_STRENGTH = 1.1;
-const MAX_ANGLE = 1.5;
-const MIN_BRIGHTNESS = 0.5 * 255;
+const MAX_ANGLE = Math.PI / 3;
+const MIN_BRIGHTNESS = 0.6 * 255;
 const MAX_BRIGHTNESS = 0.9 * 255;
 const CAMERA_CLIP_DISTANCE = SIZE * 2;
 
@@ -110,7 +110,7 @@ export default class TilesPlayer extends Player {
     createTiles() {
         const size = this.size;
         const viewRadiusSquare = VIEW_RADIUS ** 2;
-        const rotationAxis = new Vector3(1, 0, 0);
+        const rotationAxes = [new Vector3(1, 0, 0), new Vector3(0, 1, 0)];
         const tempVertex = new Vector3();
 
         const indices: number[] = [];
@@ -123,10 +123,11 @@ export default class TilesPlayer extends Player {
         let z: number;
         let angle: number;
         let offset: number;
+        let axis: Vector3;
 
-        function addDirection(x: number, y: number, z: number, offsetX: number, offsetY: number, angle: number) {
+        function addDirection(x: number, y: number, z: number, offsetX: number, offsetY: number, axis: Vector3, angle: number) {
             tempVertex.set(offsetX, offsetY, 0);
-            tempVertex.applyAxisAngle(rotationAxis, angle);
+            tempVertex.applyAxisAngle(axis, angle);
             directions.push(tempVertex.x, tempVertex.y, tempVertex.z);
             vertices.push(tempVertex.x * size + x, tempVertex.y * size + y, tempVertex.z * size + z);
         }
@@ -155,12 +156,14 @@ export default class TilesPlayer extends Player {
 
             z = zPositions[i];
 
-            angle = rand(0, MAX_ANGLE);
+            // there's a small chance to rotate by Y axis
+            axis = rotationAxes[Math.random() < 0.9 ? 0 : 1];
+            angle = rand(-1, 1) * MAX_ANGLE;
 
-            addDirection(x, y, z, -0.5, -0.5, angle);
-            addDirection(x, y, z, 0.5, -0.5, angle);
-            addDirection(x, y, z, -0.5, 0.5, angle);
-            addDirection(x, y, z, 0.5, 0.5, angle);
+            addDirection(x, y, z, -0.5, -0.5, axis, angle);
+            addDirection(x, y, z, 0.5, -0.5, axis, angle);
+            addDirection(x, y, z, -0.5, 0.5, axis, angle);
+            addDirection(x, y, z, 0.5, 0.5, axis, angle);
 
             colors.push(...COLORS[~~rand(0, COLORS.length)]);
         }
