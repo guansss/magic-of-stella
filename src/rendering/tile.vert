@@ -21,5 +21,5 @@ void main() {
     // reduce grow effect for farther tiles or they will cause unpleasant background twinkling
     gl_Position += (projectionModelView * vec4(direction * grow * clamp(1.0 + 8.0 * (depth + 0.1), 0.0, 1.0), 0.0));
 
-    vColor = vec4(color, (1.0 + 0.8 * depth) * BASE_ALPHA);
+    vColor = vec4(color, (1.0 + 0.5 * depth) * BASE_ALPHA);
 }
