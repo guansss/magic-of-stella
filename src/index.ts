@@ -81,3 +81,8 @@ Src: ${source}
 Ln: ${lineno}
 Col ${colno}`;
 };
+
+window.addEventListener('resize', () => {
+    mka.emit('resize');
+    postprocessing.resize();
+}, { passive: true });
