@@ -8,7 +8,7 @@ Wallpaper from the ending theme of anime *Magic of Stella (ステラのまほう
 
 ## Setup
 
-It's recommended to use [Yarn](https://yarnpkg.com) as package manager, *npm* is fine though.
+It's recommended to use *Yarn* as package manager, *npm* is fine though.
 
 ``` sh
 yarn install
@@ -53,7 +53,7 @@ To achieve that, a script was made to generate a bridge HTML file, there are a f
 
 This preparation should be done only once, but any time you think the generated files are supposed be updated, you need to run `yarn setup` again.
 
-Now, just like serving for browsers, run `yarn serve`, and then select the wallpaper, everything will work as it should be in browsers.
+Now, just like serving for browsers, run `yarn start`, and then select the wallpaper, everything will work as it should be in browsers.
 
 ## Building
 
@@ -66,3 +66,5 @@ If you are updating an existing Workshop project instead of creating a new one, 
 ``` sh
 WORKSHOP_ID=123456
 ```
+
+When publishing to Workshop, don't forget to copy files in */wallpaper* and paste them into your project.
