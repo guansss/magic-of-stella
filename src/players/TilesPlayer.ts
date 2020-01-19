@@ -27,10 +27,9 @@ const PULSE_GROW = 0.28;
 const GROW_FILTER_STRENGTH = 1.1;
 const MAX_ANGLE = Math.PI / 3;
 const MIN_BRIGHTNESS = 0.6 * 255;
-const MAX_BRIGHTNESS = 0.9 * 255;
 const CAMERA_CLIP_DISTANCE = SIZE * 2;
 
-const COLORS = Array(10).fill(0).map(() => {
+const COLORS = Array.from({ length: 50 }, () => {
     let r = 0, g = 0, b = 0, brightness = 0;
 
     do {
@@ -38,7 +37,7 @@ const COLORS = Array(10).fill(0).map(() => {
         g = rand(0, 255);
         b = rand(0, 255);
         brightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
-    } while (brightness < MIN_BRIGHTNESS || brightness > MAX_BRIGHTNESS);
+    } while (brightness < MIN_BRIGHTNESS);
 
     return [
         // repeat 4 times for vertices
@@ -171,7 +170,7 @@ export default class TilesPlayer extends Player {
             addDirection(x, y, z, -0.5, 0.5, axis, angle);
             addDirection(x, y, z, 0.5, 0.5, axis, angle);
 
-            colors.push(...COLORS[~~rand(0, COLORS.length)]);
+            colors.push(...COLORS[~~(Math.random() * COLORS.length)]);
         }
 
         this.vertexFront = vertices.length - 1;
