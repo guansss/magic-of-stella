@@ -23,12 +23,14 @@ const rl = readline.createInterface(process.stdin, process.stdout);
     try {
         console.log(chalk.blue('Making files in', env.WALLPAPER_PATH));
 
+        const projectJSON = generateProjectJSON(true);
+
+        await setupProjectJSON(JSON.stringify(projectJSON));
+
         await copyFiles(
             ['./assets/bridge.html', path.join(env.WALLPAPER_PATH, 'index.html')],
-            ['./assets/preview.jpg', path.join(env.WALLPAPER_PATH, 'preview.jpg')],
+            ['./assets/' + projectJSON.preview, path.join(env.WALLPAPER_PATH, projectJSON.preview)],
         );
-
-        await setupProjectJSON();
     } catch (e) {
         console.warn(e);
     }
@@ -49,14 +51,12 @@ async function copyFiles(...filePairs) {
     }
 }
 
-async function setupProjectJSON() {
-    const projectJSON = generateProjectJSON(true);
-
+async function setupProjectJSON(str) {
     for (const jsonPath of [
         path.join(env.WALLPAPER_PATH, 'project.json'),
         path.join(__dirname, '../wallpaper/project.json'),
     ]) {
-        if (await checkConflictByContent(jsonPath, projectJSON)) {
+        if (await checkConflictByContent(jsonPath, str)) {
             fs.writeFileSync(jsonPath, projectJSON);
             console.log(chalk.black.bgGreen(' WRITE '), chalk.green(jsonPath));
         }

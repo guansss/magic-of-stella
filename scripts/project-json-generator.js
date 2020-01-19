@@ -23,7 +23,7 @@ function generate(devMode) {
         projectJSON['workshopid'] = env.WORKSHOP_ID;
     }
 
-    return JSON.stringify(projectJSON);
+    return projectJSON;
 }
 
 function readLocales() {

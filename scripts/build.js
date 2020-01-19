@@ -6,9 +6,11 @@ const generateProjectJSON = require('./project-json-generator').generate;
     console.log(chalk.black.bgBlue(' BUILD '), 'Wallpaper Engine');
 
     try {
-        copyFiles('assets/preview.jpg', 'dist/preview.jpg');
+        const projectJSON = generateProjectJSON();
 
-        setupProjectJSON();
+        copyFiles('assets/' + projectJSON.preview, 'dist/' + projectJSON.preview);
+
+        setupProjectJSON(JSON.stringify(projectJSON));
     } catch (e) {
         console.warn(e);
     }
@@ -19,10 +21,8 @@ function copyFiles(from, to) {
     console.log(chalk.black.bgGreen(' WRITE '), chalk.green(to));
 }
 
-function setupProjectJSON() {
+function setupProjectJSON(str) {
     const jsonPath = 'dist/project.json';
-    const projectJSON = generateProjectJSON();
-
-    fs.writeFileSync(jsonPath, projectJSON);
+    fs.writeFileSync(jsonPath, str);
     console.log(chalk.black.bgGreen(' WRITE '), chalk.green(jsonPath));
 }
