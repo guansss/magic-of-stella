@@ -67,4 +67,4 @@ If you are updating an existing Workshop project instead of creating a new one, 
 WORKSHOP_ID=123456
 ```
 
-When publishing to Workshop, don't forget to copy files in */wallpaper* and paste them into your project.
+When publishing to Workshop, don't forget to copy files in `/wallpaper` and paste them into your project.
