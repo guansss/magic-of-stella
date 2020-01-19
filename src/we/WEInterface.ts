@@ -11,6 +11,12 @@ declare module '@/utils/EventEmitter' {
 export namespace WEInterface {
     export const PREFIX = 'we:';
 
+    // check whether running in Wallpaper Engine or in browser
+    export const runningInWE = !!window.wallpaperRegisterAudioListener;
+
+    // when this page is redirected from "bridge.html", a `redirect` will be set in URL's search parameters
+    export const redirectedFromBridge = !!new URLSearchParams(location.search.slice(1)).get('redirect');
+
     export const props: Partial<WEProperties> = {};
 
     let eventEmitter: EventEmitter;

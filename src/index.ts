@@ -45,12 +45,12 @@ mka.on('afterUpdate', () => postprocessing.render(Ticker.delta))
                 if (value.startsWith('ssaa')) {
                     postprocessing.setAntiAliasing(postprocessing.ssaaPass,
                         ({
-                            '2x': 1,
-                            '4x': 2,
-                            '8x': 3,
-                            '16x': 4,
-                            '32x': 5,
-                        } as any)[value.slice('ssaa_'.length)],
+                            'ssaa_2x': 1,
+                            'ssaa_4x': 2,
+                            'ssaa_8x': 3,
+                            'ssaa_16x': 4,
+                            'ssaa_32x': 5,
+                        } as any)[value],
                     );
                 } else {
                     postprocessing.setAntiAliasing(undefined);

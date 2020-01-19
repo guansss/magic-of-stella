@@ -12,12 +12,6 @@ type WEFilePropertyNames = 'imgDir' | 'vidDir';
 type WEFiles = Partial<Record<WEFilePropertyNames, string[]>>;
 
 declare interface Window {
-    // see http://steamcommunity.com/sharedfiles/filedetails/?id=795674740
-    wallpaperRequestRandomFileForProperty?<T extends keyof WEFilePropertyNames>(
-        name: T,
-        response: (...args: any) => void,
-    ): void;
-
     wallpaperRegisterAudioListener?(audioListener: (audioSamples: number[]) => void): void
 
     wallpaperPropertyListener: {

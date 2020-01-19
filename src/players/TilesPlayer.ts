@@ -2,8 +2,9 @@ import { VIEW_DISTANCE, VIEW_RADIUS } from '@/constants';
 import Player from '@/mka/Player';
 import frag from '@/rendering/tile.frag';
 import vert from '@/rendering/tile.vert';
-import { clamp, inWallpaperEngine, rand } from '@/utils/misc';
+import { clamp, rand } from '@/utils/misc';
 import { add as addAudioListener, remove as removeAudioListener, volumeOf } from '@/we/audio-listener';
+import { WEInterface } from '@/we/WEInterface';
 import debounce from 'lodash/debounce';
 import {
     BufferAttribute,
@@ -103,7 +104,7 @@ export default class TilesPlayer extends Player {
             return;
         }
 
-        if (inWallpaperEngine) {
+        if (WEInterface.runningInWE) {
             this.createTiles();
         } else {
             console.time('createTiles');

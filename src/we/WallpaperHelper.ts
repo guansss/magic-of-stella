@@ -1,5 +1,4 @@
 import EventEmitter from '@/utils/EventEmitter';
-import { inWallpaperEngine, redirectedFromBridge } from '@/utils/misc';
 import { getJSON, postJSON } from '@/utils/net';
 import { WEInterface } from '@/we/WEInterface';
 import debounce from 'lodash/debounce';
@@ -7,8 +6,8 @@ import debounce from 'lodash/debounce';
 export async function init(eventEmitter: EventEmitter) {
     WEInterface.setEventEmitter(eventEmitter);
 
-    if (inWallpaperEngine) {
-        if (redirectedFromBridge) {
+    if (WEInterface.runningInWE) {
+        if (WEInterface.redirectedFromBridge) {
             await setupRemote();
 
             // must use a debounce because property can change rapidly, for example when using a color picker
