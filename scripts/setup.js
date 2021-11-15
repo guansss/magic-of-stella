@@ -57,7 +57,7 @@ async function setupProjectJSON(str) {
         path.join(__dirname, '../wallpaper/project.json'),
     ]) {
         if (await checkConflictByContent(jsonPath, str)) {
-            fs.writeFileSync(jsonPath, projectJSON);
+            fs.writeFileSync(jsonPath, str);
             console.log(chalk.black.bgGreen(' WRITE '), chalk.green(jsonPath));
         }
     }
