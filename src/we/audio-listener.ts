@@ -1,21 +1,25 @@
 import { clamp } from '@/utils/misc';
-
-function audioListener(audioSamples: number[]) {
-    listeners.forEach(l => l.listener.call(l.ctx, audioSamples));
-}
-
-if (window.wallpaperRegisterAudioListener) {
-    window.wallpaperRegisterAudioListener(audioListener);
-}
-
-type AudioListener = typeof audioListener
-
-const listeners: { listener: AudioListener, ctx?: any }[] = [];
+import { createAudioEmulator } from '@/we/audio-emulator';
+import { WEInterface } from '@/we/WEInterface';
 
 const FILTER_STRENGTH = 20;
 const LOWER_VOLUME = 0.1;
 const UPPER_VOLUME = 1.3;
-let maxVolume = LOWER_VOLUME;
+let volumeBaseline = LOWER_VOLUME;
+
+export type AudioListener = typeof audioListener
+
+const listeners: { listener: AudioListener, ctx?: any }[] = [];
+
+if (window.wallpaperRegisterAudioListener) {
+    window.wallpaperRegisterAudioListener(audioListener);
+} else if (!WEInterface.runningInWE) {
+    createAudioEmulator(audioListener);
+}
+
+function audioListener(audioSamples: number[]) {
+    listeners.forEach(l => l.listener.call(l.ctx, audioSamples));
+}
 
 export function add(listener: AudioListener, context?: any) {
     if (!listeners.find(l => l.listener === listener)) {
@@ -32,9 +36,16 @@ export function remove(listener: AudioListener) {
 }
 
 export function volumeOf(audioSamples: number[]): number {
-    const max = Math.max(...audioSamples);
+    // take average volume of samples
+    let volume = audioSamples.reduce((a, b) => a + b, 0) / audioSamples.length;
 
-    maxVolume = clamp(maxVolume + (max - maxVolume) / FILTER_STRENGTH, LOWER_VOLUME, UPPER_VOLUME);
+    // the value of audio samples will be in 0-255 in browser, instead of 0-1 in WE,
+    // so some changes should be made
+    if (!WEInterface.runningInWE) {
+        volume /= 256;
+    }
 
-    return clamp(max / maxVolume, 0, UPPER_VOLUME);
+    volumeBaseline = clamp(volumeBaseline + (volume - volumeBaseline) / FILTER_STRENGTH, LOWER_VOLUME, UPPER_VOLUME);
+
+    return clamp(volume / volumeBaseline, 0, UPPER_VOLUME);
 }
