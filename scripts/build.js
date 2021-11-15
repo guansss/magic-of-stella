@@ -8,7 +8,8 @@ const generateProjectJSON = require('./project-json-generator').generate;
     try {
         const projectJSON = generateProjectJSON();
 
-        copyFiles('assets/' + projectJSON.preview, 'dist/' + projectJSON.preview);
+        copyFile('assets/' + projectJSON.preview, 'dist/' + projectJSON.preview);
+        copyFile('wallpaper/Atch - Traveller.mp3', 'dist/Atch - Traveller.mp3');
 
         setupProjectJSON(JSON.stringify(projectJSON));
     } catch (e) {
@@ -16,7 +17,7 @@ const generateProjectJSON = require('./project-json-generator').generate;
     }
 })();
 
-function copyFiles(from, to) {
+function copyFile(from, to) {
     fs.copyFileSync(from, to);
     console.log(chalk.black.bgGreen(' WRITE '), chalk.green(to));
 }
