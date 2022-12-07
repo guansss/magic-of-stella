@@ -6,6 +6,10 @@
 
 Wallpaper from the ending theme of anime *Magic of Stella (ステラのまほう)* .
 
+[View it online](https://guansss.github.io/magic-of-stella/)
+
+![1670402854696](https://user-images.githubusercontent.com/46285865/206131503-f2b6e37e-d7e2-4a4b-ac3c-ff912de5e9fd.png)
+
 ## Setup
 
 It's recommended to use *Yarn* as package manager, *npm* is fine though.
